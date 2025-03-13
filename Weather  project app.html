@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Forecast</title>
+    <!-- Link to Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            /* Gradient background with three colors */
+            background: linear-gradient(to right, #1fa2ff, #12d8fa, #a6ffcb);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            position: relative;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            width: calc(100% - 22px);
+        }
+        .weather-info {
+            margin-top: 20px;
+        }
+        .weather-info img {
+            width: 50px;
+            height: 50px;
+        }
+        .icon-bar {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .icon-bar a {
+            text-decoration: none;
+            color: #000;
+            margin: 0 5px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+        /* Hover effect: change color and slightly enlarge icon */
+        .icon-bar a:hover {
+            color: #007BFF;
+            transform: scale(1.2);
+        }
+        .info-section {
+            display: none;
+            text-align: left;
+            margin-top: 20px;
+            background-color: #f1f1f1;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon-bar">
+            <!-- Home Icon with title attribute -->
+            <a id="homeIcon" title="Go to Home"><i class="fas fa-home"></i></a>
+            <!-- Help Icon with title attribute -->
+            <a id="helpIcon" title="Get Help"><i class="fas fa-question-circle"></i></a>
+        </div>
+        <h1>Weather Forecast</h1>
+        <input type="text" id="locationInput" placeholder="Enter a city">
+        <button id="searchButton">Search</button>
+        <div id="weatherInfo" class="weather-info">
+            <!-- Weather details will be displayed here -->
+        </div>
+        <!-- Information Sections -->
+        <div id="homeInfo" class="info-section">
+            <h2>Home Information</h2>
+            <p>Welcome to the Weather Forecast application. Enter a city name to get the current weather details.</p>
+        </div>
+        <div id="helpInfo" class="info-section">
+            <h2>Help Information</h2>
+            <p>To use this application, simply type the name of a city into the input field and click 'Search' to retrieve the latest weather information.</p>
+        </div>
+    </div>
+    <script>
+        // Function to toggle the display of information sections
+        function toggleInfo(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section.style.display === 'none' || section.style.display === '') {
+                section.style.display = 'block';
+            } else {
+                section.style.display = 'none';
+            }
+        }
+
+        // Add event listeners to the icons
+        document.getElementById('homeIcon').addEventListener('click', function() {
+            toggleInfo('homeInfo');
+        });
+
+        document.getElementById('helpIcon').addEventListener('click', function() {
+            toggleInfo('helpInfo');
+        });
+
+        // Existing weather search functionality
+        document.getElementById('searchButton').addEventListener('click', function() {
+            const location = document.getElementById('locationInput').value.trim();
+            if (location === '') {
+                alert('Please enter a city name.');
+                return;
+            }
+            const apiKey = ''; // Replace with your actual API key
+            const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(location)}&appid=${apiKey}&units=metric`;
+
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('City not found');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const weatherInfo = document.getElementById('weatherInfo');
+                    const weather = data.weather[0].main;
+                    const temp = data.main.temp;
+                    const humidity = data.main.humidity;
+                    const windSpeed = data.wind.speed;
+                    const iconCode = data.weather[0].icon;
+                    const iconUrl = `https://openweathermap.org/img/wn/${iconCode}.png`;
+
+                    weatherInfo.innerHTML = `
+                        <h2>${data.name}</h2>
+                        <img src="${iconUrl}" alt="${weather}">
+                        <p>${weather}</p>
+                        <p>Temperature: ${temp}°C</p>
+                        <p>Humidity: ${humidity}%</p>
+                        <p>Wind Speed: ${windSpeed} m/s</p>
+                    `;
+                })
+                .catch(error => {
+                    document.getElementById('weatherInfo').innerHTML = '';
+                    alert('Error: ' + error.message);
+                });
+        });
+    </script>
+</body>
+</html>
